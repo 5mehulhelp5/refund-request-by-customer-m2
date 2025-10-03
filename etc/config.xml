@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Mavenbird Technologies Private Limited
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://mavenbird.com/Mavenbird-Module-License.txt
+ *
+ * =================================================================
+ *
+ * @category   Mavenbird
+ * @package    Mavenbird_RefundRequest
+ * @author     Mavenbird Team
+ * @copyright  Copyright (c) 2018-2024 Mavenbird Technologies Private Limited ( http://mavenbird.com )
+ * @license    http://mavenbird.com/Mavenbird-Module-License.txt
+ */-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <mavenbird_refundrequest>
+            <mavenbird_refundrequest_general>
+                <enable>0</enable>
+            </mavenbird_refundrequest_general>
+            <mavenbird_refundrequest_config>
+                <popup_title>refund request</popup_title>
+                <title>We are sorry to know that you want a refund, Plase let us know what's wrong?</title>
+                <dropdown_title>Reason for refund</dropdown_title>
+                <option_title>Product is opened</option_title>
+                <detail_title>Faulty or other detail</detail_title>
+            </mavenbird_refundrequest_config>
+        </mavenbird_refundrequest>
+    </default>
+</config>

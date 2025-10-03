@@ -1,0 +1,61 @@
+<?php
+/**
+ * Mavenbird Technologies Private Limited
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://mavenbird.com/Mavenbird-Module-License.txt
+ *
+ * =================================================================
+ *
+ * @category   Mavenbird
+ * @package    Mavenbird_RefundRequest
+ * @author     Mavenbird Team
+ * @copyright  Copyright (c) 2018-2024 Mavenbird Technologies Private Limited ( http://mavenbird.com )
+ * @license    http://mavenbird.com/Mavenbird-Module-License.txt
+ */
+namespace Mavenbird\RefundRequest\Controller\Adminhtml\Label;
+
+class Index extends \Magento\Backend\App\Action
+{
+    /**
+     * @var bool|\Magento\Framework\View\Result\PageFactory
+     */
+    protected $resultPageFactory = false;
+
+    /**
+     * Index constructor.
+     * @param \Magento\Backend\App\Action\Context $context
+     * @param \Magento\Framework\View\Result\PageFactory $resultPageFactory
+     */
+    public function __construct(
+        \Magento\Backend\App\Action\Context $context,
+        \Magento\Framework\View\Result\PageFactory $resultPageFactory
+    ) {
+        parent::__construct($context);
+        $this->resultPageFactory = $resultPageFactory;
+    }
+
+    /**
+     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\ResultInterface|\Magento\Framework\View\Result\Page
+     */
+    public function execute()
+    {
+        $resultPage = $this->resultPageFactory->create();
+        $resultPage->getConfig()->getTitle()->prepend((__(' Refund Request Dropdown Options')));
+        return $resultPage;
+    }
+
+    /**
+     * Check Rule
+     * @return bool
+     */
+    protected function _isAllowed()
+    {
+        return $this->_authorization
+            ->isAllowed("Mavenbird_RefundRequest::refundrequest_access_controller_label_index");
+    }
+}

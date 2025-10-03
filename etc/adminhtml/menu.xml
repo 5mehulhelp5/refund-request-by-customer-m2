@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Mavenbird Technologies Private Limited
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://mavenbird.com/Mavenbird-Module-License.txt
+ *
+ * =================================================================
+ *
+ * @category   Mavenbird
+ * @package    Mavenbird_RefundRequest
+ * @author     Mavenbird Team
+ * @copyright  Copyright (c) 2018-2024 Mavenbird Technologies Private Limited ( http://mavenbird.com )
+ * @license    http://mavenbird.com/Mavenbird-Module-License.txt
+ */-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Mavenbird_RefundRequest::request" title="Refund Request by Customer" action="mavenbird_refundrequest/request/index" module="Mavenbird_RefundRequest" sortOrder="90" parent="Magento_Sales::sales_operation" resource="Magento_Sales::sales_mavenbird_refund_request"/>
+        <add id="Mavenbird_RefundRequest::label" title="Refund Request Dropdown Options" action="mavenbird_refundrequest/label/index" module="Mavenbird_RefundRequest" sortOrder="100" parent="Magento_Sales::sales_operation" resource="Magento_Sales::sales_mavenbird_refund_request_label"/>
+    </menu>
+</config>

@@ -1,0 +1,31 @@
+{
+    "name": "mavenbird/refund-request",
+    "description": "Mavenbird Refund Request Module",
+    "type": "magento2-module",
+    "version": "1.0.0",
+    "license": [
+        "OSL-3.0",
+        "AFL-3.0"
+    ],
+    "authors": [
+        {
+            "name": "Mavenbird Team",
+            "email": "support@mavenbird.com",
+            "role": "Developer"
+        }
+    ],
+     "require": {
+        "php": "^7.4 || ^8.1",
+        "magento/framework": "^103.0",
+        "mavenbird/module-core": "*"
+ 
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Mavenbird\\RefundRequest\\": ""
+        }
+    }
+}

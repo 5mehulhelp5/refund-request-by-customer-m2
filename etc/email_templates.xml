@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Mavenbird Technologies Private Limited
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://mavenbird.com/Mavenbird-Module-License.txt
+ *
+ * =================================================================
+ *
+ * @category   Mavenbird
+ * @package    Mavenbird_RefundRequest
+ * @author     Mavenbird Team
+ * @copyright  Copyright (c) 2018-2024 Mavenbird Technologies Private Limited ( http://mavenbird.com )
+ * @license    http://mavenbird.com/Mavenbird-Module-License.txt
+ */-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <template id="mavenbird_refundrequest_mavenbird_refundrequest_email_config_email_template" label="Notify Email Template" file="mavenbird_admin_refund_request_email.html" type="html" module="Mavenbird_RefundRequest" area="frontend"/>
+    <template id="mavenbird_refundrequest_mavenbird_refundrequest_email_config_accept_email" label="Accept Email Template" file="accept_email.html" type="html" module="Mavenbird_RefundRequest" area="frontend"/>
+    <template id="mavenbird_refundrequest_mavenbird_refundrequest_email_config_reject_email" label="Reject Email Template" file="reject_email.html" type="html" module="Mavenbird_RefundRequest" area="frontend"/>
+</config>
