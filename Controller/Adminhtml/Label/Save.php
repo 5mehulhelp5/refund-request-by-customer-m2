@@ -2,32 +2,25 @@
 /**
  * Mavenbird Technologies Private Limited
  *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the EULA
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://mavenbird.com/Mavenbird-Module-License.txt
- *
- * =================================================================
- *
  * @category   Mavenbird
  * @package    Mavenbird_RefundRequest
- * @author     Mavenbird Team
- * @copyright  Copyright (c) 2018-2024 Mavenbird Technologies Private Limited ( http://mavenbird.com )
- * @license    http://mavenbird.com/Mavenbird-Module-License.txt
  */
+
 namespace Mavenbird\RefundRequest\Controller\Adminhtml\Label;
 
+use Magento\Backend\App\Action;
 use Magento\Backend\Model\Session;
 use Magento\Framework\Registry;
-use Magento\Framework\App\Action\Action;
-use Magento\Framework\App\Action\Context;
-use Magento\Framework\View\Result\PageFactory;
+use Magento\Framework\Controller\ResultFactory;
 use Mavenbird\RefundRequest\Model\LabelFactory;
 
 class Save extends Action
 {
+    /**
+     * ACL resource
+     */
+    const ADMIN_RESOURCE = 'Magento_Sales::sales_mavenbird_refund_request_label';
+
     /**
      * @var Session
      */
@@ -44,72 +37,51 @@ class Save extends Action
     protected $labelFactory;
 
     /**
-     * @var PageFactory
-     */
-    protected $resultPageFactory;
-
-    /**
      * Save constructor.
-     * @param Session $backendSession
-     * @param Registry $coreRegistry
-     * @param LabelFactory $labelFactory
-     * @param Context $context
-     * @param PageFactory $resultPageFactory
      */
     public function __construct(
+        Action\Context $context,
         Session $backendSession,
         Registry $coreRegistry,
-        LabelFactory $labelFactory,
-        Context $context,
-        PageFactory $resultPageFactory
+        LabelFactory $labelFactory
     ) {
-        $this->backendSession = $backendSession;
-        $this->coreRegistry = $coreRegistry;
-        $this->labelFactory = $labelFactory;
-        $this->resultPageFactory = $resultPageFactory;
         parent::__construct($context);
+        $this->backendSession = $backendSession;
+        $this->coreRegistry  = $coreRegistry;
+        $this->labelFactory  = $labelFactory;
     }
 
     /**
-     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\ResultInterface
+     * Save action
      */
     public function execute()
     {
-        $resultRedirect = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
-        $model = $this->labelFactory->create();
-        $data = $this->getRequest()->getPostValue();
-        $model->setData($data);
-        if ($data) {
-            try {
-                $model->save();
-                $this->messageManager->addSuccessMessage(__('The option has been saved.'));
-                $this->backendSession->setPostData(false);
-                if ($this->getRequest()->getParam('back')) {
-                    $resultRedirect->setPath('*/*/');
-                    return $resultRedirect;
-                }
-                $resultRedirect->setPath('*/*/');
-                return $resultRedirect;
-            } catch (\RuntimeException $e) {
-                $this->messageManager->addErrorMessage($e->getMessage());
-            } catch (\Exception $e) {
-                $this->messageManager->addExceptionMessage($e, __('Something went wrong while saving.'));
-            }
-            $this->_getSession()->setBssContactPostData($data);
-            $resultRedirect->setPath('*/*/');
-            return $resultRedirect;
-        }
-        $resultRedirect->setPath('*/*/');
-        return $resultRedirect;
-    }
+        $resultRedirect = $this->resultFactory
+            ->create(ResultFactory::TYPE_REDIRECT);
 
-    /**
-     * Check Rule
-     * @return bool
-     */
-    protected function _isAllowed()
-    {
-        return $this->_authorization
-            ->isAllowed("Mavenbird_RefundRequest::refundrequest_access_controller_label_save");
+        $data = $this->getRequest()->getPostValue();
+
+        if (!$data) {
+            return $resultRedirect->setPath('*/*/');
+        }
+
+        try {
+            $model = $this->labelFactory->create();
+            $model->setData($data);
+            $model->save();
+
+            $this->messageManager->addSuccessMessage(
+                __('The option has been saved.')
+            );
+
+            return $resultRedirect->setPath('*/*/');
+
+        } catch (\Exception $e) {
+            $this->messageManager->addErrorMessage(
+                __('Something went wrong while saving the option.')
+            );
+
+            return $resultRedirect->setPath('*/*/');
+        }
     }
 }

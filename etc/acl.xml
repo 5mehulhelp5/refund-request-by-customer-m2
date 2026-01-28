@@ -3,59 +3,63 @@
 /**
  * Mavenbird Technologies Private Limited
  *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the EULA
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://mavenbird.com/Mavenbird-Module-License.txt
- *
- * =================================================================
- *
  * @category   Mavenbird
  * @package    Mavenbird_RefundRequest
- * @author     Mavenbird Team
- * @copyright  Copyright (c) 2018-2024 Mavenbird Technologies Private Limited ( http://mavenbird.com )
- * @license    http://mavenbird.com/Mavenbird-Module-License.txt
- */-->
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
 
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
     <acl>
         <resources>
+
+            <!-- ROOT -->
             <resource id="Magento_Backend::admin">
+
+                <!-- ===================== -->
+                <!-- SYSTEM > CONFIG ACL -->
+                <!-- ===================== -->
                 <resource id="Magento_Backend::stores">
                     <resource id="Magento_Backend::stores_settings">
                         <resource id="Magento_Config::config">
+
                             <resource id="Mavenbird_RefundRequest::config" title="Mavenbird">
-                                <resource id="Mavenbird_RefundRequest::refundrequest_config" title="Refund Request admin config" />
-                                <resource id="Mavenbird_RefundRequest::refundrequest_access_controller" title="Module controller access">
-                                    <resource id="Mavenbird_RefundRequest::refundrequest_access_controller_label" title="Option controller access">
-                                        <resource id="Mavenbird_RefundRequest::refundrequest_access_controller_label_edit" title="Edit" />
-                                        <resource id="Mavenbird_RefundRequest::refundrequest_access_controller_label_index" title="Index Page" />
-                                        <resource id="Mavenbird_RefundRequest::refundrequest_access_controller_label_massdelete" title="Mass Delete" />
-                                        <resource id="Mavenbird_RefundRequest::refundrequest_access_controller_label_massdisable" title="Mass Disable" />
-                                        <resource id="Mavenbird_RefundRequest::refundrequest_access_controller_label_massenable" title="Mass Enable"/>
-                                        <resource id="Mavenbird_RefundRequest::refundrequest_access_controller_label_newaction" title="Creat New Option" />
-                                        <resource id="Mavenbird_RefundRequest::refundrequest_access_controller_label_save" title="Save Option"/>
-                                    </resource>
-                                    <resource id="Mavenbird_RefundRequest::refundrequest_access_controller_request" title="Request Grid controller access">
-                                        <resource id="Mavenbird_RefundRequest::refundrequest_access_controller_request_index" title="Index Page"/>
-                                        <resource id="Mavenbird_RefundRequest::refundrequest_access_controller_request_massaccept" title="Mass Accept"/>
-                                        <resource id="Mavenbird_RefundRequest::refundrequest_access_controller_request_massdelete" title="Mass Delete"/>
-                                        <resource id="Mavenbird_RefundRequest::refundrequest_access_controller_request_massreject" title="Mass Reject"/>
-                                    </resource>
-                                </resource>
+                                <resource
+                                    id="Mavenbird_RefundRequest::refundrequest_config"
+                                    title="Refund Request Configuration"
+                                />
                             </resource>
+
                         </resource>
                     </resource>
                 </resource>
-                <resource id="Magento_Sales::sales" title="Sales" translate="title" sortOrder="20">
-                    <resource id="Magento_Sales::sales_operation" title="Operations" translate="title" sortOrder="10">
-                        <resource id="Magento_Sales::sales_mavenbird_refund_request" title="Mavenbird Refund Request List" translate="title" sortOrder="100" />
-                        <resource id="Magento_Sales::sales_mavenbird_refund_request_label" title="Mavenbird Refund Request Dropdown Options" translate="title" sortOrder="110" />
+
+                <!-- ===================== -->
+                <!-- SALES > OPERATIONS -->
+                <!-- ===================== -->
+                <resource id="Magento_Sales::sales" title="Sales" sortOrder="20">
+
+                    <resource id="Magento_Sales::sales_operation"
+                              title="Operations"
+                              sortOrder="10">
+
+                        <resource
+                            id="Magento_Sales::sales_mavenbird_refund_request"
+                            title="Mavenbird Refund Request List"
+                            sortOrder="100"
+                        />
+
+                        <resource
+                            id="Magento_Sales::sales_mavenbird_refund_request_label"
+                            title="Mavenbird Refund Request Dropdown Options"
+                            sortOrder="110"
+                        />
+
                     </resource>
                 </resource>
+
             </resource>
+
         </resources>
     </acl>
 </config>

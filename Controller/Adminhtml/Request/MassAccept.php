@@ -1,183 +1,126 @@
 <?php
-/**
- * Mavenbird Technologies Private Limited
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the EULA
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://mavenbird.com/Mavenbird-Module-License.txt
- *
- * =================================================================
- *
- * @category   Mavenbird
- * @package    Mavenbird_RefundRequest
- * @author     Mavenbird Team
- * @copyright  Copyright (c) 2018-2024 Mavenbird Technologies Private Limited ( http://mavenbird.com )
- * @license    http://mavenbird.com/Mavenbird-Module-License.txt
- */
 namespace Mavenbird\RefundRequest\Controller\Adminhtml\Request;
 
-use Magento\Framework\App\ResourceConnection;
+use Magento\Backend\App\Action;
+use Magento\Framework\Controller\ResultFactory;
+use Magento\Ui\Component\MassAction\Filter;
+use Mavenbird\RefundRequest\Helper\Data;
+use Mavenbird\RefundRequest\Helper\Email;
+use Mavenbird\RefundRequest\Model\ResourceModel\Request\CollectionFactory;
+use Mavenbird\RefundRequest\Model\ResourceModel\Status;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Magento\Framework\Locale\ListsInterface;
 
-/** * @SuppressWarnings(PHPMD.CouplingBetweenObjects) */
-class MassAccept extends \Magento\Backend\App\Action
+class MassAccept extends Action
 {
+    const ADMIN_RESOURCE = 'Magento_Sales::sales_mavenbird_refund_request';
     const STATUS_ACCEPT = 1;
-    /**
-     * @var \Mavenbird\RefundRequest\Helper\Data
-     */
+
     protected $helper;
-
-    /**
-     * @var \Mavenbird\RefundRequest\Helper\Email
-     */
     protected $emailSender;
-
-    /**
-     * Mass Action Filter
-     *
-     * @var \Magento\Ui\Component\MassAction\Filter
-     */
     protected $filter;
-
-    /**
-     * Collection Factory
-     *
-     * @var \Mavenbird\RefundRequest\Model\ResourceModel\Request\CollectionFactory
-     */
     protected $collectionFactory;
-
-    /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
-     */
     protected $scopeConfig;
-
-    /**
-     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
-     */
     protected $timezone;
-
-    /**
-     * @var \Magento\Framework\Locale\ListsInterface
-     */
     protected $localeLists;
-
-    /**
-     * @var \Mavenbird\RefundRequest\Model\ResourceModel
-     */
     protected $statusResourceModel;
 
-    /**
-     * MassAccept constructor.
-     * @param \Mavenbird\RefundRequest\Helper\Email $emailSender
-     * @param \Mavenbird\RefundRequest\Helper\Data $helper
-     * @param \Magento\Ui\Component\MassAction\Filter $filter
-     * @param \Mavenbird\RefundRequest\Model\ResourceModel\Request\CollectionFactory $collectionFactory
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone
-     * @param \Magento\Framework\Locale\ListsInterface $localeLists
-     * @param \Magento\Backend\App\Action\Context $context
-     * @param \Mavenbird\RefundRequest\Model\ResourceModel\Status $statusResourceModel
-     */
     public function __construct(
-        \Mavenbird\RefundRequest\Helper\Email $emailSender,
-        \Mavenbird\RefundRequest\Helper\Data $helper,
-        \Magento\Ui\Component\MassAction\Filter $filter,
-        \Mavenbird\RefundRequest\Model\ResourceModel\Request\CollectionFactory $collectionFactory,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone,
-        \Magento\Framework\Locale\ListsInterface $localeLists,
-        \Magento\Backend\App\Action\Context $context,
-        \Mavenbird\RefundRequest\Model\ResourceModel\Status $statusResourceModel
+        Action\Context $context,
+        Email $emailSender,
+        Data $helper,
+        Filter $filter,
+        CollectionFactory $collectionFactory,
+        ScopeConfigInterface $scopeConfig,
+        TimezoneInterface $timezone,
+        ListsInterface $localeLists,
+        Status $statusResourceModel
     ) {
-        $this->helper = $helper;
+        parent::__construct($context);
         $this->emailSender = $emailSender;
+        $this->helper = $helper;
         $this->filter = $filter;
         $this->collectionFactory = $collectionFactory;
         $this->scopeConfig = $scopeConfig;
         $this->timezone = $timezone;
         $this->localeLists = $localeLists;
         $this->statusResourceModel = $statusResourceModel;
-        parent::__construct($context);
     }
 
-    /**
-     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\ResultInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
     public function execute()
     {
-        $resultRedirect = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
-        if ($this->helper->getConfigEnableModule()) {
-            $acceptOrder = 0;
-            $incrementIds = [];
-            $collection = $this->filter->getCollection($this->collectionFactory->create());
-            try {
-                foreach ($collection as $key => $item) {
-                    if ($item["refund_status"] != 1) {
-                        $this->sendEmail($item);
-                        $incrementIds[$key] = $item["increment_id"];
-                        $acceptOrder++;
-                    }
-                }
-                $this->statusResourceModel->updateOrderRefundStatus($incrementIds, self::STATUS_ACCEPT);
-                $this->statusResourceModel->updateStatusAndTime($incrementIds, self::STATUS_ACCEPT);
-                $this->messageManager->addSuccessMessage(__('%1 request has been accepted', $acceptOrder));
-                return $resultRedirect->setPath('*/*/');
-            } catch (\Exception $e) {
-                $this->messageManager->addErrorMessage($e->getMessage());
-                return $resultRedirect->setPath('*/*/');
+        $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
+
+        // if (!$this->helper->isModuleEnabledForAdmin()) {
+        //     $this->messageManager->addWarningMessage(__('Module is disabled.'));
+        //     return $resultRedirect->setPath('*/*/');
+        // }
+
+        $collection = $this->filter->getCollection(
+            $this->collectionFactory->create()
+        );
+
+        $count = 0;
+        $incrementIds = [];
+
+        foreach ($collection as $key => $item) {
+            if ($item->getRefundStatus() != self::STATUS_ACCEPT) {
+                $this->sendEmail($item);
+                $incrementIds[$key] = $item->getIncrementId();
+                $count++;
             }
-        } else {
-            $this->messageManager->addWarningMessage(__('Module is disabled.'));
         }
+
+        if ($incrementIds) {
+            $this->statusResourceModel->updateOrderRefundStatus(
+                $incrementIds,
+                self::STATUS_ACCEPT
+            );
+            $this->statusResourceModel->updateStatusAndTime(
+                $incrementIds,
+                self::STATUS_ACCEPT
+            );
+        }
+
+        $this->messageManager->addSuccessMessage(
+            __('%1 request(s) have been accepted.', $count)
+        );
+
         return $resultRedirect->setPath('*/*/');
     }
-    /**
-     * @param $item
-     */
+
     protected function sendEmail($item)
     {
-        $customerEmail = $item->getCustomerEmail();
-        $timezone = $this->scopeConfig->getValue('general/locale/timezone', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $timezone = $this->scopeConfig->getValue(
+            'general/locale/timezone',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
         $date = $this->timezone->date();
         $timezoneLabel = $this->getTimezoneLabelByValue($timezone);
-        $date = $date->format('Y-m-d h:i:s A')." ".$timezoneLabel;
-        $emailTemplate = $this->helper->getAcceptEmailTemplate();
+
         $emailTemplateData = [
-            'incrementId' => $item["increment_id"],
-            'id' => $item["id"],
-            'timeApproved'=> $date,
-            'customerName' => $item["customer_name"]
+            'incrementId'  => $item->getIncrementId(),
+            'id'           => $item->getId(),
+            'timeApproved' => $date->format('Y-m-d h:i:s A') . ' ' . $timezoneLabel,
+            'customerName'=> $item->getCustomerName()
         ];
-        $this->emailSender->sendEmail($customerEmail, $emailTemplate, $emailTemplateData);
+
+        $this->emailSender->sendEmail(
+            $item->getCustomerEmail(),
+            $this->helper->getAcceptEmailTemplate(),
+            $emailTemplateData
+        );
     }
 
-    /**
-     * @param $timezoneValue
-     * @return string
-     */
     protected function getTimezoneLabelByValue($timezoneValue)
     {
-        $timezones = $this->localeLists->getOptionTimezones();
-        $label = '';
-        foreach ($timezones as $zone) {
-            if ($zone["value"] == $timezoneValue) {
-                $label = $zone["label"];
+        foreach ($this->localeLists->getOptionTimezones() as $zone) {
+            if ($zone['value'] == $timezoneValue) {
+                return $zone['label'];
             }
         }
-        return $label;
-    }
-
-    /**
-     * Check Rule
-     * @return bool
-     */
-    protected function _isAllowed()
-    {
-        return $this->_authorization
-            ->isAllowed("Mavenbird_RefundRequest::refundrequest_access_controller_request_massaccept");
+        return '';
     }
 }

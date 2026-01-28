@@ -148,28 +148,29 @@ class Index extends \Magento\Framework\App\Action\Action
     protected function sendEmail($orderData)
     {
         $emailTemplate = $this->helper->getEmailTemplate();
-        $adminEmail    = $this->helper->getAdminEmail();
-        $adminEmails   = explode(",", $adminEmail);
-        $countEmail    = count($adminEmails);
-        if ($countEmail > 1) {
-            foreach ($adminEmails as $value) {
-                $value             = str_replace(' ', '', $value ?? '');
-                $emailTemplateData = [
-                    'adminEmail'   => $value,
-                    'incrementId'  => $orderData->getIncrementId(),
-                    'customerName' => $orderData->getCustomerName(),
-                    'createdAt'    => $orderData->getCreatedAt(),
-                ];
-                $this->emailSender->sendEmail($value, $emailTemplate, $emailTemplateData);
-            }
-        } else {
+        $adminEmail = (string) $this->helper->getAdminEmail();
+
+        if (empty($adminEmail)) {
+            return;
+        }
+
+        $adminEmails = array_filter(
+            array_map('trim', explode(',', $adminEmail))
+        );
+
+        foreach ($adminEmails as $email) {
             $emailTemplateData = [
-                'adminEmail'   => $adminEmail,
+                'adminEmail'   => $email,
                 'incrementId'  => $orderData->getIncrementId(),
                 'customerName' => $orderData->getCustomerName(),
                 'createdAt'    => $orderData->getCreatedAt(),
             ];
-            $this->emailSender->sendEmail($adminEmail, $emailTemplate, $emailTemplateData);
+
+            $this->emailSender->sendEmail(
+                $email,
+                $emailTemplate,
+                $emailTemplateData
+            );
         }
     }
 }

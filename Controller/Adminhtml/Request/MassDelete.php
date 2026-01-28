@@ -1,91 +1,46 @@
 <?php
-/**
- * Mavenbird Technologies Private Limited
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the EULA
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://mavenbird.com/Mavenbird-Module-License.txt
- *
- * =================================================================
- *
- * @category   Mavenbird
- * @package    Mavenbird_RefundRequest
- * @author     Mavenbird Team
- * @copyright  Copyright (c) 2018-2024 Mavenbird Technologies Private Limited ( http://mavenbird.com )
- * @license    http://mavenbird.com/Mavenbird-Module-License.txt
- */
 namespace Mavenbird\RefundRequest\Controller\Adminhtml\Request;
 
-class MassDelete extends \Magento\Backend\App\Action
-{
-    /**
-     * Mass Action Filter
-     *
-     * @var \Magento\Ui\Component\MassAction\Filter
-     */
-    protected $filter;
+use Magento\Backend\App\Action;
+use Magento\Framework\Controller\ResultFactory;
+use Magento\Ui\Component\MassAction\Filter;
+use Mavenbird\RefundRequest\Model\ResourceModel\Request\CollectionFactory;
 
-    /**
-     * Collection Factory
-     *
-     * @var \Mavenbird\RefundRequest\Model\ResourceModel\Request\CollectionFactory
-     */
+class MassDelete extends Action
+{
+    const ADMIN_RESOURCE = 'Magento_Sales::sales_mavenbird_refund_request';
+
+    protected $filter;
     protected $collectionFactory;
 
     public function __construct(
-        \Magento\Ui\Component\MassAction\Filter $filter,
-        \Mavenbird\RefundRequest\Model\ResourceModel\Request\CollectionFactory $collectionFactory,
-        \Magento\Backend\App\Action\Context $context
+        Action\Context $context,
+        Filter $filter,
+        CollectionFactory $collectionFactory
     ) {
-        $this->filter            = $filter;
-        $this->collectionFactory = $collectionFactory;
         parent::__construct($context);
+        $this->filter = $filter;
+        $this->collectionFactory = $collectionFactory;
     }
 
-    /**
-     * @return \Magento\Backend\Model\View\Result\Redirect|\Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\ResultInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
     public function execute()
     {
-        $collection = $this->filter->getCollection($this->collectionFactory->create());
+        $collection = $this->filter->getCollection(
+            $this->collectionFactory->create()
+        );
 
-        $delete = 0;
+        $count = 0;
         foreach ($collection as $item) {
-            try {
-                $this->deleteItem($item);
-            } catch (\RuntimeException $e) {
-                $this->messageManager->addErrorMessage($e->getMessage());
-            } catch (\Exception $e) {
-                $this->messageManager->addExceptionMessage($e, __('Something went wrong while deleting.'));
-            }
-            $delete++;
+            $item->delete();
+            $count++;
         }
-        $this->messageManager->addSuccessMessage(__('A total of %1 record(s) has been deleted.', $delete));
-        /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
-        $resultRedirect = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
-        return $resultRedirect->setPath('*/*/');
-    }
 
-    /**
-     * @param $item
-     * @return mixed
-     */
-    protected function deleteItem($item)
-    {
-        return $item->delete();
-    }
+        $this->messageManager->addSuccessMessage(
+            __('%1 request(s) have been deleted.', $count)
+        );
 
-    /**
-     * Check Rule
-     * @return bool
-     */
-    protected function _isAllowed()
-    {
-        return $this->_authorization
-            ->isAllowed("Mavenbird_RefundRequest::refundrequest_access_controller_request_massdelete");
+        return $this->resultFactory
+            ->create(ResultFactory::TYPE_REDIRECT)
+            ->setPath('*/*/');
     }
 }
